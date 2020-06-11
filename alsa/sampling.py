@@ -238,25 +238,31 @@ def iwal_bootstrap(network,
         train(this_network,
               dataset,
               epochs=args.initial_epochs,
-              args=args)
+              args=args,
+              milestones=LONG_MILESTONES)
         this_network.eval()
 
     # Process IWAL probabilities
     all_probs = np.zeros(
         (len(version_space), args.num_cls, dataset.online_len()))
-    for model_i, model in enumerate(version_space):
-        model.eval()
-        probs = [list() for i in range(args.num_cls)]
-        for (data, _, _) in dataset.iterate(batch_size=args.infer_batch_size,
-                                            shuffle=False,
-                                            split="online"):
-            data = data.to(args.device)
-            logits = model(data)
-            output = torch.exp(logits)  # p(y | x)
-            for i in range(args.num_cls):
-                probs[i].append(output[:, i].cpu().data.numpy())
-        for i, x in enumerate(probs):
-            all_probs[model_i, i] = np.concatenate(x)
+    with torch.no_grad():
+        for model_i, model in enumerate(version_space):
+            model.eval()
+            probs = [list() for i in range(args.num_cls)]
+            for (data, _, _) in dataset.iterate(batch_size=args.infer_batch_size,
+                                                shuffle=False,
+                                                split="online"):
+                data = data.to(args.device)
+                logits = model(data)
+                output = torch.exp(logits)  # p(y | x)
+                output = output.cpu().data.numpy()
+                if not args.train_iw and not args.only_rlls_infer:
+                    output = output * dataset.label_weights
+                    output = output / np.sum(output, axis=1)[:, None]
+                for i in range(args.num_cls):
+                    probs[i].append(output[:, i])
+            for i, x in enumerate(probs):
+                all_probs[model_i, i] = np.concatenate(x)
     all_probs = np.transpose(all_probs, [2, 0, 1])
     # For some datapoint and some label, this is largest disagreement in prob:
     probs_disagreement = np.max(all_probs, axis=2) - np.min(all_probs, axis=2)

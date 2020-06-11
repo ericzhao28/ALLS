@@ -13,7 +13,7 @@ from alsa.datasets.datasets import get_datasets
 from alsa.main.args import get_net_cls, get_args
 from alsa.nets.alt_common import train as sep_train
 from alsa.nets.common import evaluate, train
-from alsa.sampling import general_sampling
+from alsa.sampling import general_sampling, iwal_bootstrap
 
 
 def save_to_csv(name, d, args, logger):
@@ -89,11 +89,18 @@ def experiment(args, logger, name, seed=None):
     label_shift(network, dataset, args)
 
     # Initialize sampling strategy
-    iterator = general_sampling(
-        network,
-        net_cls,
-        dataset,
-        args)
+    if args.sampling_strategy == "iwal":
+        iterator = iwal_bootstrap(
+            network,
+            net_cls,
+            dataset,
+            args)
+    else:
+        iterator = general_sampling(
+            network,
+            net_cls,
+            dataset,
+            args)
 
     # Initialize results
     _, initial_labeled_shift, initial_uniform_labeled_shift = measure_composition(
