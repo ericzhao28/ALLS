@@ -12,10 +12,7 @@ from alsa.config import LONG_MILESTONES
 from alsa.adaptation.label_shift import label_shift
 
 
-def general_sampling(network,
-                     net_cls,
-                     dataset,
-                     args=None):
+def general_sampling(network, net_cls, dataset, args=None):  # pylint: disable=R0914,R0912,R0915
     """Query-by-committee (pool): disagreement between random inits of net."""
     # Batch-mode settings
     batch_size = int(dataset.online_len() / args.num_batches)
@@ -49,9 +46,10 @@ def general_sampling(network,
         stats = []  # Smaller stats means higher priority
         sep_stats = []  # Bigger value means more important
         with torch.no_grad():
-            for image, y, _ in dataset.iterate(batch_size=args.infer_batch_size,
-                                               shuffle=False,
-                                               split="online"):
+            for image, y, _ in dataset.iterate(
+                    batch_size=args.infer_batch_size,
+                    shuffle=False,
+                    split="online"):
                 image = image.to(args.device)
 
                 # Aggregate domain sep
@@ -120,15 +118,16 @@ def general_sampling(network,
                         p = p / np.sum(p, axis=1)[:, None]
                     stats.append(-np.sum(-p * np.log(p + 1e-9), axis=1))
                 if args.sampling_strategy == "random":
-                    stats.append(np.random.uniform(size=(len(image),)))
+                    stats.append(np.random.uniform(size=(len(image), )))
 
             if args.diversify in ["guess", "overguess"]:
                 # Produce new ys
                 ys = []
                 network.eval()
-                for image, _, _ in dataset.iterate(batch_size=args.infer_batch_size,
-                                                   shuffle=False,
-                                                   split="online"):
+                for image, _, _ in dataset.iterate(
+                        batch_size=args.infer_batch_size,
+                        shuffle=False,
+                        split="online"):
                     image = image.to(args.device)
                     output = torch.exp(network(image))
                     p = output.cpu().data.numpy()
@@ -162,11 +161,11 @@ def general_sampling(network,
                 sorted_ptrs_by_label[ys[ptr]].append(ptr)
 
             # Of remaining ptrs per label, find most equal allocation
-            label_lens = sorted([len(x)
-                                 for x in sorted_ptrs_by_label.values()])
+            label_lens = sorted(
+                [len(x) for x in sorted_ptrs_by_label.values()])
             for i, l in enumerate(label_lens):
-                size = math.ceil(
-                    (label_batch_size - sum(label_lens[:i])) / len(label_lens[i:]))
+                size = math.ceil((label_batch_size - sum(label_lens[:i])) /
+                                 len(label_lens[i:]))
                 if size <= l:
                     break
                 size = -1
@@ -185,8 +184,8 @@ def general_sampling(network,
 
             # Label pts per each
             for k, ptrs in sorted_ptrs_by_label.items():
-                size = math.ceil(
-                    dataset.label_weights[k] / sum(dataset.label_weights) * label_batch_size)
+                size = math.ceil(dataset.label_weights[k] /
+                                 sum(dataset.label_weights) * label_batch_size)
                 labeled_ptrs = np.concatenate([labeled_ptrs, ptrs[:size]])
             assert len(np.unique(labeled_ptrs)) == len(labeled_ptrs)
 
@@ -221,18 +220,16 @@ def general_sampling(network,
         yield committee[0]
 
 
-def iwal_bootstrap(network,
-                   net_cls,
-                   dataset,
-                   args=None):
+def iwal_bootstrap(network, net_cls, dataset, args=None):
     """IWAL bootstrap instantiation."""
     # Batch-mode settings
     batch_size = int(dataset.online_len() / args.num_batches)
     label_batch_size = int(args.sample_prop * batch_size)
 
     # Initialize version space
-    version_space = [net_cls(args.num_cls).to(args.device)
-                     for _ in range(args.vs_size)]
+    version_space = [
+        net_cls(args.num_cls).to(args.device) for _ in range(args.vs_size)
+    ]
     for this_network in version_space:
         this_network.train()
         train(this_network,
@@ -249,9 +246,10 @@ def iwal_bootstrap(network,
         for model_i, model in enumerate(version_space):
             model.eval()
             probs = [list() for i in range(args.num_cls)]
-            for (data, _, _) in dataset.iterate(batch_size=args.infer_batch_size,
-                                                shuffle=False,
-                                                split="online"):
+            for (data, _,
+                 _) in dataset.iterate(batch_size=args.infer_batch_size,
+                                       shuffle=False,
+                                       split="online"):
                 data = data.to(args.device)
                 logits = model(data)
                 output = torch.exp(logits)  # p(y | x)
@@ -294,6 +292,6 @@ def iwal_bootstrap(network,
               lr=args.finetune_lr,
               args=args)
 
-        print("Sample proportion: ", len(
-            labeled_ptrs[:labeled]) / dataset.online_len())
+        print("Sample proportion: ",
+              len(labeled_ptrs[:labeled]) / dataset.online_len())
         yield network

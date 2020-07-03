@@ -4,12 +4,11 @@ from __future__ import print_function
 
 import torch.nn as nn
 import torch.nn.functional as F
-from alsa.nets.resnet import resnet50, resnet18, resnet34
+from alsa.nets.resnet import resnet34
 
 
 class BIRDNet(nn.Module):
     '''Resnet50 + log-softmax for p.'''
-
     def __init__(self, output_dim):
         super(BIRDNet, self).__init__()
         self._net = resnet34(num_classes=output_dim)

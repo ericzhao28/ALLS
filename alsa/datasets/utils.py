@@ -10,8 +10,7 @@ class SubsetSampler(Sampler):
     Arguments:
         indices (sequence): a sequence of indices
     """
-
-    def __init__(self, indices, shuffle):
+    def __init__(self, indices, shuffle):  # pylint: disable=W0231
         self.indices = indices
         self.shuffle = shuffle
 

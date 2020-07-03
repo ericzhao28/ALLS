@@ -14,8 +14,9 @@ def uniform_dataset(idxs_by_label, size, replace=True, verbose=True):
         cls_size = math.ceil(size / len(idxs_by_label))
         for l in idxs_by_label:
             if idxs_by_label[l]:
-                idxs = np.random.randint(
-                    0, len(idxs_by_label[l]), size=(cls_size,))
+                idxs = np.random.randint(0,
+                                         len(idxs_by_label[l]),
+                                         size=(cls_size, ))
                 idxs_by_label[l] = [idxs_by_label[l][i] for i in idxs]
     else:
         # How many data points should we keep in classes?
@@ -27,8 +28,9 @@ def uniform_dataset(idxs_by_label, size, replace=True, verbose=True):
         for l in idxs_by_label:
             idxs_by_label[l] = idxs_by_label[l][:cls_size]
 
-    cls_composition = [len(idxs_by_label[k])
-                       for k in sorted(idxs_by_label.keys())]
+    cls_composition = [
+        len(idxs_by_label[k]) for k in sorted(idxs_by_label.keys())
+    ]
     cls_composition = np.array(cls_composition, dtype=np.float32)
     if verbose:
         print("Class composition: ", cls_composition)
@@ -56,11 +58,13 @@ def tweak_dataset(idxs_by_label, size, args, replace=True, verbose=True):
         for l in idxs_by_label:
             if idxs_by_label[l]:
                 if l == args.tweak_label:
-                    idxs = np.random.randint(
-                        0, len(idxs_by_label[l]), size=(tweak_size,))
+                    idxs = np.random.randint(0,
+                                             len(idxs_by_label[l]),
+                                             size=(tweak_size, ))
                 else:
-                    idxs = np.random.randint(
-                        0, len(idxs_by_label[l]), size=(other_size,))
+                    idxs = np.random.randint(0,
+                                             len(idxs_by_label[l]),
+                                             size=(other_size, ))
                 idxs_by_label[l] = [idxs_by_label[l][i] for i in idxs]
     else:
         # How many data points should we keep in classes?
@@ -74,8 +78,9 @@ def tweak_dataset(idxs_by_label, size, args, replace=True, verbose=True):
             if l != args.tweak_label:
                 idxs_by_label[l] = idxs_by_label[l][:other_size + 1]
 
-    cls_composition = [len(idxs_by_label[k])
-                       for k in sorted(idxs_by_label.keys())]
+    cls_composition = [
+        len(idxs_by_label[k]) for k in sorted(idxs_by_label.keys())
+    ]
     cls_composition = np.array(cls_composition, dtype=np.float32)
     if verbose:
         print("Class composition: ", cls_composition)
@@ -91,19 +96,19 @@ def tweak_dataset(idxs_by_label, size, args, replace=True, verbose=True):
     return dataset
 
 
-def dirichlet_dataset(
-        idxs_by_label,
-        size,
-        args,
-        replace=True,
-        verbose=True,
-        distribution=None):
+def dirichlet_dataset(idxs_by_label,
+                      size,
+                      args,
+                      replace=True,
+                      verbose=True,
+                      distribution=None):
     """Shift dataset with prior sampled from Dirichlet distribution."""
 
     # Compute distribution if not provided
     if distribution is None:
-        distribution = np.random.dirichlet(
-            [args.dirichlet_alpha] * len(idxs_by_label), size=())
+        distribution = np.random.dirichlet([args.dirichlet_alpha] *
+                                           len(idxs_by_label),
+                                           size=())
 
     # Group data points by label
     if replace:
@@ -112,8 +117,9 @@ def dirichlet_dataset(
             if not cls_size:
                 cls_size = 1
             if idxs_by_label[l]:
-                idxs = np.random.randint(
-                    0, len(idxs_by_label[l]), size=(cls_size,))
+                idxs = np.random.randint(0,
+                                         len(idxs_by_label[l]),
+                                         size=(cls_size, ))
                 idxs_by_label[l] = [idxs_by_label[l][i] for i in idxs]
     else:
         # Find resulting dataset size
@@ -131,8 +137,9 @@ def dirichlet_dataset(
                 cls_size = 1
             idxs_by_label[l] = idxs_by_label[l][:cls_size]
 
-    cls_composition = [len(idxs_by_label[k])
-                       for k in sorted(idxs_by_label.keys())]
+    cls_composition = [
+        len(idxs_by_label[k]) for k in sorted(idxs_by_label.keys())
+    ]
     cls_composition = np.array(cls_composition, dtype=np.float32)
     if verbose:
         print("Class composition: ", cls_composition)
@@ -148,12 +155,13 @@ def dirichlet_dataset(
     return dataset, distribution
 
 
-def shift_dataset(args, warmstart_idxs_by_label, online_idxs_by_label, test_idxs_by_label):
+def shift_dataset(args, warmstart_idxs_by_label, online_idxs_by_label,
+                  test_idxs_by_label):
     """Shift source and target according to arg rules."""
 
     # Transform datasets
-    warmstart_size = int(args.dataset_cap
-                         * (args.warmstart_ratio / (args.warmstart_ratio + 1)))
+    warmstart_size = int(args.dataset_cap * (args.warmstart_ratio /
+                                             (args.warmstart_ratio + 1)))
     online_size = args.dataset_cap - warmstart_size
     test_size = online_size
     if args.dataset == "nabirds":
@@ -162,14 +170,14 @@ def shift_dataset(args, warmstart_idxs_by_label, online_idxs_by_label, test_idxs
 
     if args.shift_strategy == "dirichlet":
         # Dirichlet source, uniform target/test
-        warmstart_idxs, p = dirichlet_dataset(
-            warmstart_idxs_by_label, warmstart_size, args)
+        warmstart_idxs, p = dirichlet_dataset(warmstart_idxs_by_label,
+                                              warmstart_size, args)
         online_idxs = uniform_dataset(online_idxs_by_label, online_size)
         test_idxs = uniform_dataset(test_idxs_by_label, test_size)
     elif args.shift_strategy == "tweak":
         # Tweak source, uniform target/test
-        warmstart_idxs = tweak_dataset(
-            warmstart_idxs_by_label, warmstart_size, args)
+        warmstart_idxs = tweak_dataset(warmstart_idxs_by_label, warmstart_size,
+                                       args)
         online_idxs = uniform_dataset(online_idxs_by_label, online_size)
         test_idxs = uniform_dataset(test_idxs_by_label, test_size)
     elif args.shift_strategy == "trulynone":
@@ -190,65 +198,74 @@ def shift_dataset(args, warmstart_idxs_by_label, online_idxs_by_label, test_idxs
         warmstart_idxs = warmstart_idxs[:warmstart_size]
 
         print("warmstart", [len(x) for x in warmstart_idxs_by_label.values()])
-        online_idxs, p = dirichlet_dataset(
-            online_idxs_by_label, online_size, args)
-        test_idxs, p = dirichlet_dataset(
-            test_idxs_by_label, test_size, args, distribution=p)
+        online_idxs, p = dirichlet_dataset(online_idxs_by_label, online_size,
+                                           args)
+        test_idxs, p = dirichlet_dataset(test_idxs_by_label,
+                                         test_size,
+                                         args,
+                                         distribution=p)
 
     elif args.shift_strategy == "none":
         # Uniform source, uniform target/test
-        warmstart_idxs = uniform_dataset(
-            warmstart_idxs_by_label, warmstart_size)
+        warmstart_idxs = uniform_dataset(warmstart_idxs_by_label,
+                                         warmstart_size)
         online_idxs = uniform_dataset(online_idxs_by_label, online_size)
         test_idxs = uniform_dataset(test_idxs_by_label, test_size)
     elif args.shift_strategy == "dirichlet_target":
         # Uniform source, dirichlet target/test
-        warmstart_idxs = uniform_dataset(
-            warmstart_idxs_by_label, warmstart_size)
-        online_idxs, p = dirichlet_dataset(
-            online_idxs_by_label, online_size, args)
-        test_idxs, p = dirichlet_dataset(
-            test_idxs_by_label, test_size, args, distribution=p)
+        warmstart_idxs = uniform_dataset(warmstart_idxs_by_label,
+                                         warmstart_size)
+        online_idxs, p = dirichlet_dataset(online_idxs_by_label, online_size,
+                                           args)
+        test_idxs, p = dirichlet_dataset(test_idxs_by_label,
+                                         test_size,
+                                         args,
+                                         distribution=p)
     elif args.shift_strategy == "dirichlet_online_target":
         # Uniform source, dirichlet target/test
-        warmstart_idxs = uniform_dataset(
-            warmstart_idxs_by_label, warmstart_size)
-        online_idxs = uniform_dataset(
-            online_idxs_by_label, online_size)
-        test_idxs, p = dirichlet_dataset(
-            test_idxs_by_label, test_size, args)
+        warmstart_idxs = uniform_dataset(warmstart_idxs_by_label,
+                                         warmstart_size)
+        online_idxs = uniform_dataset(online_idxs_by_label, online_size)
+        test_idxs, p = dirichlet_dataset(test_idxs_by_label, test_size, args)
     elif args.shift_strategy == "dirichlet_identical":
         # Dirichlet source, dirichlet target/test (identical p)
-        warmstart_idxs, p = dirichlet_dataset(
-            warmstart_idxs_by_label, warmstart_size, args)
-        online_idxs, p = dirichlet_dataset(
-            online_idxs_by_label, online_size, args, distribution=p)
-        test_idxs, p = dirichlet_dataset(
-            test_idxs_by_label, test_size, args, distribution=p)
+        warmstart_idxs, p = dirichlet_dataset(warmstart_idxs_by_label,
+                                              warmstart_size, args)
+        online_idxs, p = dirichlet_dataset(online_idxs_by_label,
+                                           online_size,
+                                           args,
+                                           distribution=p)
+        test_idxs, p = dirichlet_dataset(test_idxs_by_label,
+                                         test_size,
+                                         args,
+                                         distribution=p)
     elif args.shift_strategy == "dirichlet_mix":
         # Dirichlet source, dirichlet target/test (different p)
-        warmstart_idxs, _ = dirichlet_dataset(
-            warmstart_idxs_by_label, warmstart_size, args)
-        online_idxs, p = dirichlet_dataset(
-            online_idxs_by_label, online_size, args)
-        test_idxs, p = dirichlet_dataset(
-            test_idxs_by_label, test_size, args, distribution=p)
+        warmstart_idxs, _ = dirichlet_dataset(warmstart_idxs_by_label,
+                                              warmstart_size, args)
+        online_idxs, p = dirichlet_dataset(online_idxs_by_label, online_size,
+                                           args)
+        test_idxs, p = dirichlet_dataset(test_idxs_by_label,
+                                         test_size,
+                                         args,
+                                         distribution=p)
     elif args.shift_strategy == "dirichlet_online":
         # Dirichlet source, dirichlet target/test (different p)
-        warmstart_idxs, p = dirichlet_dataset(
-            warmstart_idxs_by_label, warmstart_size, args)
-        online_idxs, _ = dirichlet_dataset(
-            online_idxs_by_label, online_size, args)
-        test_idxs, _ = dirichlet_dataset(
-            test_idxs_by_label, test_size, args, distribution=p)
+        warmstart_idxs, p = dirichlet_dataset(warmstart_idxs_by_label,
+                                              warmstart_size, args)
+        online_idxs, _ = dirichlet_dataset(online_idxs_by_label, online_size,
+                                           args)
+        test_idxs, _ = dirichlet_dataset(test_idxs_by_label,
+                                         test_size,
+                                         args,
+                                         distribution=p)
     elif args.shift_strategy == "dirichlet_online_source":
         # Dirichlet source, dirichlet target/test (different p)
-        warmstart_idxs = uniform_dataset(
-            warmstart_idxs_by_label, warmstart_size, args)
-        online_idxs, _ = dirichlet_dataset(
-            online_idxs_by_label, online_size, args)
-        test_idxs = uniform_dataset(
-            test_idxs_by_label, test_size, args)
+        warmstart_idxs = uniform_dataset(warmstart_idxs_by_label,
+                                         warmstart_size, args)
+        online_idxs, _ = dirichlet_dataset(online_idxs_by_label, online_size,
+                                           args)
+        test_idxs = uniform_dataset(test_idxs_by_label, test_size, args)
     else:
         raise ValueError()
     return warmstart_idxs, online_idxs, test_idxs

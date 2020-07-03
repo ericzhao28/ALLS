@@ -9,10 +9,8 @@ from alsa.config import cifar100_mean, cifar100_std, nabirds_mean, nabirds_std
 
 def dataset_factory(dataset_cls):
     """Create wrapper of torchvision dataset to also return indices."""
-
-    class DomainDataset(dataset_cls):
+    class DomainDataset(dataset_cls):  # pylint: disable=R0903
         """Wrapping of torchvision dataset"""
-
         def __init__(self, *args, domain=None, **kargs):
             super().__init__(*args, **kargs)
             self.domain = domain
@@ -24,7 +22,6 @@ def dataset_factory(dataset_cls):
 
     class WeightedDataset(dataset_cls):
         """Wrapping of torchvision dataset"""
-
         def __init__(self, *args, **kargs):
             super().__init__(*args, **kargs)
             self.weights = np.ones(self.__len__(), dtype=np.float32)
@@ -44,9 +41,8 @@ def dataset_factory(dataset_cls):
                 for i in indices:
                     self.weights[i] = weight_map[self.targets[i]]
 
-    class LabelsDataset(dataset_cls):
+    class LabelsDataset(dataset_cls):  # pylint: disable=R0903
         """Wrapping of torchvision dataset"""
-
         def __getitem__(self, index):
             """Modifies get item by also returning idx."""
             try:
@@ -66,11 +62,9 @@ def get_datasets(args):
     """Grab MNIST, CIFAR10, and CIFAR100 datasets"""
     if args.dataset == "mnist":
         dataset_cls = datasets.MNIST
-        train_transforms = [
-        ]
-        test_transforms = [
-        ]
-        moments = ((0.1307,), (0.3081,))
+        train_transforms = []
+        test_transforms = []
+        moments = ((0.1307, ), (0.3081, ))
         args.num_cls = 10
     elif args.dataset == "cifar":
         dataset_cls = datasets.CIFAR10
@@ -79,8 +73,7 @@ def get_datasets(args):
             transforms.RandomHorizontalFlip(),
             transforms.RandomRotation(15),
         ]
-        test_transforms = [
-        ]
+        test_transforms = []
         moments = None
         args.num_cls = 10
     elif args.dataset == "cifar100":
@@ -90,8 +83,7 @@ def get_datasets(args):
             transforms.RandomHorizontalFlip(),
             transforms.RandomRotation(15),
         ]
-        test_transforms = [
-        ]
+        test_transforms = []
         moments = (cifar100_mean, cifar100_std)
         args.num_cls = 100
     elif args.dataset == "nabirds":
@@ -116,5 +108,5 @@ def get_datasets(args):
 
     dataset_classes = dataset_factory(dataset_cls)
     return ActiveDataset(dataset_classes[0], dataset_classes[1],
-                         dataset_classes[2],
-                         train_transforms, test_transforms, args, moments)
+                         dataset_classes[2], train_transforms, test_transforms,
+                         args, moments)

@@ -29,13 +29,20 @@ class NABirds(VisionDataset):
     filename = 'nabirds.tar.gz'
     md5 = 'df21a9e4db349a14e2b08adfd45873bd'
 
-    def __init__(self, root, train=True, transform=None, target_transform=None, download=None):
-        super(NABirds, self).__init__(
-            root, transform=transform, target_transform=target_transform)
+    def __init__(self,
+                 root,
+                 train=True,
+                 transform=None,
+                 target_transform=None,
+                 download=None):
+        super(NABirds, self).__init__(root,
+                                      transform=transform,
+                                      target_transform=target_transform)
         if download is True:
-            msg = ("The dataset is no longer publicly accessible. You need to "
-                   "download the archives externally and place them in the root "
-                   "directory.")
+            msg = (
+                "The dataset is no longer publicly accessible. You need to "
+                "download the archives externally and place them in the root "
+                "directory.")
             raise RuntimeError(msg)
         msg = ("The use of the download flag is deprecated, since the dataset "
                "is no longer publicly accessible.")
@@ -44,22 +51,30 @@ class NABirds(VisionDataset):
         dataset_path = os.path.join(root, "nabirds")
         print(dataset_path)
         if not os.path.isdir(dataset_path):
-            if not check_integrity(os.path.join(root, self.filename), self.md5):
+            if not check_integrity(os.path.join(root, self.filename),
+                                   self.md5):
                 raise RuntimeError('Dataset not found or corrupted.')
             extract_archive(os.path.join(root, self.filename))
         self.loader = default_loader
         self.train = train
 
         image_paths = pd.read_csv(os.path.join(dataset_path, 'images.txt'),
-                                  sep=' ', names=['img_id', 'filepath'])
-        image_class_labels = pd.read_csv(os.path.join(dataset_path, 'image_class_labels.txt'),
-                                         sep=' ', names=['img_id', 'target'])
-        image_bounding_boxes = pd.read_csv(os.path.join(dataset_path, 'bounding_boxes.txt'),
-                                           sep=' ', names=['img_id', 'x', 'y', 'w', 'h'])
+                                  sep=' ',
+                                  names=['img_id', 'filepath'])
+        image_class_labels = pd.read_csv(os.path.join(
+            dataset_path, 'image_class_labels.txt'),
+                                         sep=' ',
+                                         names=['img_id', 'target'])
+        image_bounding_boxes = pd.read_csv(
+            os.path.join(dataset_path, 'bounding_boxes.txt'),
+            sep=' ',
+            names=['img_id', 'x', 'y', 'w', 'h'])
         # Since the raw labels are non-continuous, map them to new ones
         self.label_map = get_continuous_class_map(image_class_labels['target'])
-        train_test_split = pd.read_csv(os.path.join(dataset_path, 'train_test_split.txt'),
-                                       sep=' ', names=['img_id', 'is_training_img'])
+        train_test_split = pd.read_csv(os.path.join(dataset_path,
+                                                    'train_test_split.txt'),
+                                       sep=' ',
+                                       names=['img_id', 'is_training_img'])
         data = image_paths.merge(image_class_labels, on='img_id')
         data = data.merge(image_bounding_boxes, on='img_id')
         self.data = data.merge(train_test_split, on='img_id')
@@ -74,9 +89,10 @@ class NABirds(VisionDataset):
         self.class_hierarchy = load_hierarchy(dataset_path)
         self.targets = None
 
-    def change_class_map(self, args):
+    def change_class_map(self, args):  # pylint: disable=W0621
+        """Update class map to address child/grandchild tree."""
         changed = True
-        child_map = {k: [] for k in self.class_hierarchy.keys()}
+        child_map = {k: [] for k in self.class_hierarchy}
         child_map['0'] = []
 
         for k, v in self.class_hierarchy.items():
@@ -130,8 +146,8 @@ class NABirds(VisionDataset):
         target = self.label_map[sample.target]
         img = self.loader(path)
 
-        img = img.crop((sample.x, sample.y, sample.x +
-                        sample.w, sample.y + sample.h))
+        img = img.crop(
+            (sample.x, sample.y, sample.x + sample.w, sample.y + sample.h))
 
         if self.transform is not None:
             img = self.transform(img)
@@ -140,6 +156,7 @@ class NABirds(VisionDataset):
         return img, target
 
     def get_target(self, idx):
+        """Get label of an index without loading image off disk"""
         sample = self.data.iloc[idx]
         target = self.label_map[int(sample.target)]
         return target
@@ -178,8 +195,7 @@ def load_hierarchy(dataset_path=''):
 
 
 if __name__ == '__main__':
-    train_dataset = NABirds('/content/data',
-                            train=True, download=False)
+    train_dataset = NABirds('/content/data', train=True, download=False)
     args = get_args("--nabirdstype child")
     print(train_dataset.change_class_map(args))
     print(train_dataset.get_target(0))

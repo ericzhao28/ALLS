@@ -9,7 +9,6 @@ import torch.nn.functional as F
 
 class MNISTNet(nn.Module):
     '''Simple CNN from MNIST baselines.'''
-
     def __init__(self, output_dim=10):
         super(MNISTNet, self).__init__()
         self.conv1 = nn.Conv2d(1, 32, 3, 1)
@@ -37,7 +36,6 @@ class MNISTNet(nn.Module):
 
 class SimpleMNISTNet(nn.Module):
     '''Simple CNN from MNIST baselines.'''
-
     def __init__(self, output_dim=10):
         super(SimpleMNISTNet, self).__init__()
         self.dropout1 = nn.Dropout2d(0.25)
