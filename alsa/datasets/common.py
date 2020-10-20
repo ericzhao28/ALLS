@@ -89,6 +89,8 @@ class ActiveDataset():  # pylint: disable=R0902
 
         self.label_weights = np.ones(args.num_cls, dtype=np.float32)
 
+        self.first_weight = None
+
     def label_ptrs(self, ptrs):
         """Add online ptrs to the labeled set. Replaces old label set."""
         self._online_ptrs = np.array(ptrs, dtype=np.int32)

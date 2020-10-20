@@ -97,4 +97,7 @@ def label_shift(network, dataset, args):
     # Precomputed per-example weights
     dataset.set_weight(label_weights)
 
+    if dataset.first_weight is None:
+        dataset.first_weight = true_label_weights
+
     return np.mean(np.square(diff_weights))

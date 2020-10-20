@@ -259,6 +259,99 @@ def shift_dataset(args, warmstart_idxs_by_label, online_idxs_by_label,
                                          test_size,
                                          args,
                                          distribution=p)
+    elif args.shift_strategy == "dirichlet_general_eric":
+        # Dirichlet source, dirichlet target/test (different p)
+        args.dirichlet_alpha = 3.0
+        warmstart_idxs, _ = dirichlet_dataset(warmstart_idxs_by_label,
+                                              warmstart_size, args)
+        args.dirichlet_alpha = 3.0
+        online_idxs, _ = dirichlet_dataset(online_idxs_by_label, online_size,
+                                           args)
+        args.dirichlet_alpha = 0.7
+        test_idxs, _ = dirichlet_dataset(test_idxs_by_label,
+                                         test_size,
+                                         args)
+    elif args.shift_strategy == "dirichlet_general_eric22":
+        # Dirichlet source, dirichlet target/test (different p)
+        args.dirichlet_alpha = 1.0
+        warmstart_idxs, _ = dirichlet_dataset(warmstart_idxs_by_label,
+                                              warmstart_size, args)
+        args.dirichlet_alpha = 1.0
+        online_idxs, _ = dirichlet_dataset(online_idxs_by_label, online_size,
+                                           args)
+        args.dirichlet_alpha = 0.4
+        test_idxs, _ = dirichlet_dataset(test_idxs_by_label,
+                                         test_size,
+                                         args)
+    elif args.shift_strategy == "dirichlet_general_eric21":
+        # Dirichlet source, dirichlet target/test (different p)
+        args.dirichlet_alpha = 2.0
+        warmstart_idxs, _ = dirichlet_dataset(warmstart_idxs_by_label,
+                                              warmstart_size, args)
+        args.dirichlet_alpha = 2.0
+        online_idxs, _ = dirichlet_dataset(online_idxs_by_label, online_size,
+                                           args)
+        args.dirichlet_alpha = 0.4
+        test_idxs, _ = dirichlet_dataset(test_idxs_by_label,
+                                         test_size,
+                                         args)
+    elif args.shift_strategy == "dirichlet_general_eric2":
+        # Dirichlet source, dirichlet target/test (different p)
+        args.dirichlet_alpha = 3.0
+        warmstart_idxs, _ = dirichlet_dataset(warmstart_idxs_by_label,
+                                              warmstart_size, args)
+        args.dirichlet_alpha = 3.0
+        online_idxs, _ = dirichlet_dataset(online_idxs_by_label, online_size,
+                                           args)
+        args.dirichlet_alpha = 0.4
+        test_idxs, _ = dirichlet_dataset(test_idxs_by_label,
+                                         test_size,
+                                         args)
+    elif args.shift_strategy == "dirichlet_general_eric3":
+        # Dirichlet source, dirichlet target/test (different p)
+        args.dirichlet_alpha = 3.0
+        warmstart_idxs, _ = dirichlet_dataset(warmstart_idxs_by_label,
+                                              warmstart_size, args)
+        args.dirichlet_alpha = 3.0
+        online_idxs, _ = dirichlet_dataset(online_idxs_by_label, online_size,
+                                           args)
+        args.dirichlet_alpha = 1.5
+        test_idxs, _ = dirichlet_dataset(test_idxs_by_label,
+                                         test_size,
+                                         args)
+    elif args.shift_strategy == "dirichlet_general":
+        # Dirichlet source, dirichlet target/test (different p)
+        args.dirichlet_alpha = 3.0
+        warmstart_idxs, _ = dirichlet_dataset(warmstart_idxs_by_label,
+                                              warmstart_size, args)
+        args.dirichlet_alpha = 3.0
+        online_idxs, _ = dirichlet_dataset(online_idxs_by_label, online_size,
+                                           args)
+        args.dirichlet_alpha = 0.1
+        test_idxs, _ = dirichlet_dataset(test_idxs_by_label,
+                                         test_size,
+                                         args)
+    elif args.shift_strategy == "dirichlet_general3":
+        # Dirichlet source, dirichlet target/test (different p)
+        warmstart_idxs, p = dirichlet_dataset(warmstart_idxs_by_label,
+                                              warmstart_size, args)
+        args.dirichlet_alpha = 3.0
+        online_idxs, _ = dirichlet_dataset(online_idxs_by_label, online_size,
+                                           args)
+        test_idxs, _ = dirichlet_dataset(test_idxs_by_label,
+                                         test_size,
+                                         args,
+                                         distribution=p)
+    elif args.shift_strategy == "dirichlet_general4":
+        # Dirichlet source, dirichlet target/test (different p)
+        warmstart_idxs = uniform_dataset(warmstart_idxs_by_label,
+                                         warmstart_size, args)
+        online_idxs, _ = dirichlet_dataset(online_idxs_by_label, online_size,
+                                           args)
+        args.dirichlet_alpha = 0.4
+        test_idxs, _ = dirichlet_dataset(test_idxs_by_label,
+                                         test_size,
+                                         args)
     elif args.shift_strategy == "dirichlet_online_source":
         # Dirichlet source, dirichlet target/test (different p)
         warmstart_idxs = uniform_dataset(warmstart_idxs_by_label,
