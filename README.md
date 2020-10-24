@@ -1,6 +1,6 @@
 # Active Learning under Label Shift
 
-This repository is the official implementation of [Active Learning Under Label Shift](https://arxiv.org/abs/TBD). 
+This repository is the official implementation of [Active Learning Under Label Shift](https://arxiv.org/abs/2007.08479). 
 
 ## Requirements
 
