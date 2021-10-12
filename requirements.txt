@@ -27,7 +27,7 @@ mock==4.0.1
 nltk==3.4.5
 nvidia-dali==0.19.0
 onnx==1.6.0
-opencv-python==3.4.1.15
+opencv-python==3.4.7.28
 pandas==0.24.2
 pillow-simd==5.3.0.post1
 pip-chill==1.0.0
