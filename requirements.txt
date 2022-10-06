@@ -19,7 +19,7 @@ jupyter-tensorboard==0.1.10
 jupyterlab==1.0.4
 jupytext==1.4.1
 librosa==0.6.3
-lief==0.9.0
+lief==0.12.2
 lmdb==0.98
 maskrcnn-benchmark==0.1
 mlperf-compliance==0.0.10
